@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subnetting GOD PRO MAX v3.8</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background:#020617; color:#f8fafc; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+        .content { flex: 1; }
+        .card { background:#0b1220; border:2px solid #1e293b; border-radius:12px; }
+        
+        .label-bold { color: #fbbf24 !important; font-weight: 900; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; }
+        input, textarea { background:#0f172a !important; color:#ffffff !important; border:2px solid #334155 !important; font-size: 0.9rem; }
+        .table { color:#ffffff; border-color: #334155; font-size: 0.85rem; }
+        .title { color:#38bdf8; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; }
+        
+        .card-step { background: #0f172a; border-left: 5px solid #0ea5e9 !important; font-size: 0.82rem; }
+        .step-label { color: #38bdf8 !important; font-weight: bold; width: 90px; display: inline-block; }
+        .text-white-bold { color: #ffffff !important; font-weight: 800; }
+        .text-bin { color: #22c55e; font-family: 'Courier New', monospace; font-size: 0.75rem; letter-spacing: 1px; }
+        
+        .text-jump-val { color: #fbbf24; font-weight: 900; font-size: 1.1rem; }
+        .text-jump-desc { color: #ffffff; font-weight: bold; font-size: 0.75rem; }
+        
+        .ip-box { background: #000000; border-radius: 8px; padding: 8px 12px; border: 1px solid #38bdf8; }
+        code { font-size: 0.9rem; font-family: 'Cascadia Code', monospace; }
+        .ip-useful { color: #ffffff !important; font-weight: 900; border-bottom: 1px solid #38bdf8; }
+        .ip-technical { color: #38bdf8 !important; }
+
+        .potencia-item { font-size: 0.85rem; border-bottom: 1px solid #1e293b; padding: 3px 0; display: flex; justify-content: space-between; color: #ffffff; }
+        .potencia-val { color: #fbbf24; font-weight: 800; }
+
+        /* FOOTER ESTILO COPYRIGHT */
+        footer { background: #0b1220; border-top: 1px solid #1e293b; padding: 15px; text-align: center; margin-top: 30px; }
+        .footer-text { color: #94a3b8; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; }
+        .footer-name { color: #38bdf8; font-weight: bold; text-shadow: 0 0 5px rgba(56, 189, 248, 0.4); }
+    </style>
+</head>
+<body class="p-3">
+
+<div class="content container-fluid">
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <div class="card p-3 mb-3">
+                <h5 class="title mb-3">🚀 CONFIGURACIÓN</h5>
+                <label class="label-bold">IP BASE</label>
+                <input id="ip" class="form-control mb-3" value="172.20.0.0">
+                <label class="label-bold">SUBREDES (NOMBRE:HOSTS)</label>
+                <textarea id="input" class="form-control mb-3" rows="5">MERIDA:3500
+SANCRISTOBAL:2000
+TRUJILLO:900
+VLAN:250
+WAN:2</textarea>
+                <button class="btn btn-primary w-100 fw-bold py-2" onclick="calcular()">GENERAR CÁLCULO</button>
+            </div>
+            <div class="card p-3">
+                <h6 class="text-info fw-bold mb-2 small border-bottom pb-1">REF. 2<sup>n</sup></h6>
+                <div id="potencias_ref"></div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div id="resultado_container" style="display:none;">
+                <div class="card p-3 mb-3">
+                    <h5 class="title mb-2">📋 CUADRO VLSM</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm m-0 text-center">
+                            <thead class="text-info fw-bold">
+                                <tr>
+                                    <th>RED</th>
+                                    <th>HOSTS</th>
+                                    <th>NETWORK</th>
+                                    <th>MÁSCARA</th>
+                                    <th>BROADCAST</th>
+                                    <th>CIDR</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla_body" class="fw-bold"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <h5 class="title mb-3 text-center">🧠 MEMORIA DE CÁLCULO</h5>
+                <div id="pasos" class="row gx-2 gy-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-text">
+        © 2026 Generado por <span class="footer-name">Heldyn Diaz</span> | Subnetting 
+    </div>
+</footer>
+
+<script>
+window.onload = function() {
+    let html = "";
+    for(let i=0; i<=15; i++) {
+        html += `<div class="potencia-item"><span>2<sup>${i}</sup></span> <span class="potencia-val">${Math.pow(2,i).toLocaleString()}</span></div>`;
+    }
+    document.getElementById('potencias_ref').innerHTML = html;
+};
+
+// Convierte máscara decimal a binario con puntos
+function maskToBinary(maskStr) {
+    return maskStr.split('.').map(octet => 
+        parseInt(octet).toString(2).padStart(8, '0')
+    ).join('.');
+}
+
+const validarIP = (ip) => /^(25[0-5]|2[0-4]\d|[01]?\d\d?)(\.(25[0-5]|2[0-4]\d|[01]?\d\d?)){3}$/.test(ip);
+const ipToInt = (ip) => ip.split('.').reduce((a, b) => (a << 8) + parseInt(b), 0) >>> 0;
+const intToIp = (i) => [(i >>> 24) & 255, (i >>> 16) & 255, (i >>> 8) & 255, i & 255].join('.');
+
+function getMask(cidr) {
+    let mask = [];
+    for (let i = 0; i < 4; i++) {
+        let n = Math.min(cidr, 8);
+        mask.push(256 - Math.pow(2, 8 - n));
+        cidr -= n;
+    }
+    return mask.join('.');
+}
+
+function calcular() {
+    const ipIn = document.getElementById('ip').value;
+    if (!validarIP(ipIn)) return alert("IP Inválida");
+
+    let base = ipToInt(ipIn);
+    const redes = document.getElementById('input').value.trim().split('\n').map(l => {
+        let [n, h] = l.split(':');
+        return { name: n.trim(), hosts: parseInt(h) || 0 };
+    }).sort((a, b) => b.hosts - a.hosts);
+
+    let htmlBody = "";
+    let pasosHtml = "";
+
+    redes.forEach(r => {
+        let bitsHost = 0;
+        while ((Math.pow(2, bitsHost) - 2) < r.hosts) bitsHost++;
+        let size = Math.pow(2, bitsHost);
+        let cidr = 32 - bitsHost;
+        let mascara = getMask(cidr);
+        let binMask = maskToBinary(mascara);
+        
+        let salto, oct;
+        if (cidr >= 24) { salto = 256 - (ipToInt(mascara) & 255); oct = "4TO"; }
+        else if (cidr >= 16) { salto = 256 - ((ipToInt(mascara) >> 8) & 255); oct = "3ER"; }
+        else { salto = 256 - ((ipToInt(mascara) >> 16) & 255); oct = "2DO"; }
+
+        let net = base, first = net+1, last = net+size-2, bc = net+size-1;
+
+        htmlBody += `<tr><td class="text-info">${r.name}</td><td>${r.hosts}</td><td>${intToIp(net)}</td><td class="text-warning">${mascara}</td><td>${intToIp(bc)}</td><td>/${cidr}</td></tr>`;
+
+        pasosHtml += `
+            <div class="col-md-6 mb-2">
+                <div class="card p-3 card-step h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-1" style="border-color: #1e293b !important;">
+                        <span class="h6 text-info m-0 fw-bold">${r.name}</span>
+                        <span class="badge bg-primary" style="font-size: 0.7rem;">${r.hosts} HOSTS</span>
+                    </div>
+                    <div class="mb-2 lh-sm">
+                        <div><span class="step-label">POTENCIA:</span> <span class="text-white-bold">2<sup>${bitsHost}</sup> = ${size.toLocaleString()}</span></div>
+                        <div><span class="step-label">MÁSCARA:</span> <span class="text-white-bold">/${cidr} (${mascara})</span></div>
+                        <div class="text-bin my-1">${binMask}</div>
+                        <div><span class="step-label">SALTO:</span> <span class="text-jump-val">${salto}</span> <span class="text-jump-desc">(${oct})</span></div>
+                    </div>
+                    <div class="ip-box">
+                        <div class="mb-1"><span class="step-label">RED:</span> <code class="ip-technical">${intToIp(net)}</code></div>
+                        <div class="mb-1"><span class="step-label">1RA IP:</span> <code class="ip-useful">${intToIp(first)}</code></div>
+                        <div class="mb-1"><span class="step-label">ULT IP:</span> <code class="ip-useful">${intToIp(last)}</code></div>
+                        <div><span class="step-label">B-CAST:</span> <code class="ip-technical">${intToIp(bc)}</code></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        base += size;
+    });
+
+    document.getElementById('tabla_body').innerHTML = htmlBody;
+    document.getElementById('pasos').innerHTML = pasosHtml;
+    document.getElementById('resultado_container').style.display = "block";
+}
+</script>
+</body>
+</html>
