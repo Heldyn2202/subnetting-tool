@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subnetting GOD PRO MAX v3.8</title>
+    <title>Subnetting Calculadora </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background:#020617; color:#f8fafc; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
@@ -31,7 +31,11 @@
         .potencia-item { font-size: 0.85rem; border-bottom: 1px solid #1e293b; padding: 3px 0; display: flex; justify-content: space-between; color: #ffffff; }
         .potencia-val { color: #fbbf24; font-weight: 800; }
 
-        /* FOOTER ESTILO COPYRIGHT */
+        .bit-row { border-bottom: 1px solid #1e293b; font-size: 0.75rem; display: flex; justify-content: space-between; padding: 4px 0; }
+        .bit-header { color: #38bdf8 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; } /* COLOR CAMBIADO AQUÍ */
+        .bit-val { color: #fbbf24; font-weight: bold; }
+        .bit-sum { color: #38bdf8; font-weight: bold; }
+
         footer { background: #0b1220; border-top: 1px solid #1e293b; padding: 15px; text-align: center; margin-top: 30px; }
         .footer-text { color: #94a3b8; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; }
         .footer-name { color: #38bdf8; font-weight: bold; text-shadow: 0 0 5px rgba(56, 189, 248, 0.4); }
@@ -43,19 +47,27 @@
     <div class="row">
         <div class="col-md-3 mb-3">
             <div class="card p-3 mb-3">
-                <h5 class="title mb-3">🚀 CONFIGURACIÓN</h5>
+                <h5 class="title mb-3">🚀 CALCULADORA VLSM</h5>
                 <label class="label-bold">IP BASE</label>
                 <input id="ip" class="form-control mb-3" value="172.20.0.0">
                 <label class="label-bold">SUBREDES (NOMBRE:HOSTS)</label>
-                <textarea id="input" class="form-control mb-3" rows="5">MERIDA:3500
-SANCRISTOBAL:2000
+                <textarea id="input" class="form-control mb-3" rows="5">MÉRIDA:3500
+SAN CRISTOBAL:2000
 TRUJILLO:900
 VLAN:250
 WAN:2</textarea>
                 <button class="btn btn-primary w-100 fw-bold py-2" onclick="calcular()">GENERAR CÁLCULO</button>
             </div>
+
+            <div class="card p-3 mb-3">
+                <h6 class="text-info fw-bold mb-2 small border-bottom pb-1">SUMA DE BITS (OCTETO)</h6>
+                <div id="bits_referencia">
+                    <div class="bit-row bit-header"><span>BIT Pos.</span> <span>VALOR</span> <span>SUMA</span></div>
+                </div>
+            </div>
+
             <div class="card p-3">
-                <h6 class="text-info fw-bold mb-2 small border-bottom pb-1">REF. 2<sup>n</sup></h6>
+                <h6 class="text-info fw-bold mb-2 small border-bottom pb-1">POTENCIA. 2<sup>n</sup></h6>
                 <div id="potencias_ref"></div>
             </div>
         </div>
@@ -95,14 +107,31 @@ WAN:2</textarea>
 
 <script>
 window.onload = function() {
-    let html = "";
+    // Generar potencias de 2
+    let potHtml = "";
     for(let i=0; i<=15; i++) {
-        html += `<div class="potencia-item"><span>2<sup>${i}</sup></span> <span class="potencia-val">${Math.pow(2,i).toLocaleString()}</span></div>`;
+        potHtml += `<div class="potencia-item"><span>2<sup>${i}</sup></span> <span class="potencia-val">${Math.pow(2,i).toLocaleString()}</span></div>`;
     }
-    document.getElementById('potencias_ref').innerHTML = html;
+    document.getElementById('potencias_ref').innerHTML = potHtml;
+
+    // Generar tabla de suma de bits (Octeto)
+    let bitsHtml = "";
+    let sumaAcumulada = 0;
+    const valoresBits = [128, 64, 32, 16, 8, 4, 2, 1];
+    
+    valoresBits.forEach((val, index) => {
+        sumaAcumulada += val;
+        bitsHtml += `
+            <div class="bit-row">
+                <span class="text-white">Bit ${index + 1}</span>
+                <span class="bit-val">${val}</span>
+                <span class="bit-sum">${sumaAcumulada}</span>
+            </div>`;
+    });
+    document.getElementById('bits_referencia').innerHTML += bitsHtml;
 };
 
-// Convierte máscara decimal a binario con puntos
+
 function maskToBinary(maskStr) {
     return maskStr.split('.').map(octet => 
         parseInt(octet).toString(2).padStart(8, '0')
@@ -129,8 +158,8 @@ function calcular() {
 
     let base = ipToInt(ipIn);
     const redes = document.getElementById('input').value.trim().split('\n').map(l => {
-        let [n, h] = l.split(':');
-        return { name: n.trim(), hosts: parseInt(h) || 0 };
+        let parts = l.split(':');
+        return { name: parts[0].trim(), hosts: parseInt(parts[1]) || 0 };
     }).sort((a, b) => b.hosts - a.hosts);
 
     let htmlBody = "";
@@ -145,9 +174,10 @@ function calcular() {
         let binMask = maskToBinary(mascara);
         
         let salto, oct;
-        if (cidr >= 24) { salto = 256 - (ipToInt(mascara) & 255); oct = "4TO"; }
-        else if (cidr >= 16) { salto = 256 - ((ipToInt(mascara) >> 8) & 255); oct = "3ER"; }
-        else { salto = 256 - ((ipToInt(mascara) >> 16) & 255); oct = "2DO"; }
+        let maskInt = ipToInt(mascara);
+        if (cidr >= 24) { salto = 256 - (maskInt & 255); oct = "4TO"; }
+        else if (cidr >= 16) { salto = 256 - ((maskInt >> 8) & 255); oct = "3ER"; }
+        else { salto = 256 - ((maskInt >> 16) & 255); oct = "2DO"; }
 
         let net = base, first = net+1, last = net+size-2, bc = net+size-1;
 
@@ -164,7 +194,7 @@ function calcular() {
                         <div><span class="step-label">POTENCIA:</span> <span class="text-white-bold">2<sup>${bitsHost}</sup> = ${size.toLocaleString()}</span></div>
                         <div><span class="step-label">MÁSCARA:</span> <span class="text-white-bold">/${cidr} (${mascara})</span></div>
                         <div class="text-bin my-1">${binMask}</div>
-                        <div><span class="step-label">SALTO:</span> <span class="text-jump-val">${salto}</span> <span class="text-jump-desc">(${oct})</span></div>
+                        <div><span class="step-label">SALTO:</span> <span class="text-jump-val">${salto}</span> <span class="text-jump-desc">(${oct} OCTETO)</span></div>
                     </div>
                     <div class="ip-box">
                         <div class="mb-1"><span class="step-label">RED:</span> <code class="ip-technical">${intToIp(net)}</code></div>
