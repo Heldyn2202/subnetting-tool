@@ -6,9 +6,24 @@
     <title>Subnetting Calculadora </title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background:#020617; color:#f8fafc; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; min-height: 100vh; }
+        body { 
+            
+            background-color: #020617; 
+            background-image: url('fondo_red.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+          
+            
+            color:#f8fafc; 
+            font-family: 'Segoe UI', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+        }
         .content { flex: 1; }
-        .card { background:#0b1220; border:2px solid #1e293b; border-radius:12px; }
+        .card { background: rgba(11, 18, 32, 0.9); border:2px solid #1e293b; border-radius:12px; backdrop-filter: blur(5px); }
         
         .label-bold { color: #fbbf24 !important; font-weight: 900; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; }
         input, textarea { background:#0f172a !important; color:#ffffff !important; border:2px solid #334155 !important; font-size: 0.9rem; }
@@ -32,11 +47,11 @@
         .potencia-val { color: #fbbf24; font-weight: 800; }
 
         .bit-row { border-bottom: 1px solid #1e293b; font-size: 0.75rem; display: flex; justify-content: space-between; padding: 4px 0; }
-        .bit-header { color: #38bdf8 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; } /* COLOR CAMBIADO AQUÍ */
+        .bit-header { color: #38bdf8 !important; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
         .bit-val { color: #fbbf24; font-weight: bold; }
         .bit-sum { color: #38bdf8; font-weight: bold; }
 
-        footer { background: #0b1220; border-top: 1px solid #1e293b; padding: 15px; text-align: center; margin-top: 30px; }
+        footer { background: rgba(11, 18, 32, 0.9); border-top: 1px solid #1e293b; padding: 15px; text-align: center; margin-top: 30px; }
         .footer-text { color: #94a3b8; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; }
         .footer-name { color: #38bdf8; font-weight: bold; text-shadow: 0 0 5px rgba(56, 189, 248, 0.4); }
     </style>
@@ -107,14 +122,12 @@ WAN:2</textarea>
 
 <script>
 window.onload = function() {
-    // Generar potencias de 2
     let potHtml = "";
     for(let i=0; i<=15; i++) {
         potHtml += `<div class="potencia-item"><span>2<sup>${i}</sup></span> <span class="potencia-val">${Math.pow(2,i).toLocaleString()}</span></div>`;
     }
     document.getElementById('potencias_ref').innerHTML = potHtml;
 
-    // Generar tabla de suma de bits (Octeto)
     let bitsHtml = "";
     let sumaAcumulada = 0;
     const valoresBits = [128, 64, 32, 16, 8, 4, 2, 1];
@@ -130,7 +143,6 @@ window.onload = function() {
     });
     document.getElementById('bits_referencia').innerHTML += bitsHtml;
 };
-
 
 function maskToBinary(maskStr) {
     return maskStr.split('.').map(octet => 
