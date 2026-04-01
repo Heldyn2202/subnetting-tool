@@ -1,21 +1,20 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subnetting Calculadora </title>
+    <title>Subnetting Calculadora + Modo Estudio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body { 
-            
             background-color: #020617; 
             background-image: url('fondo_red.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-          
-            
             color:#f8fafc; 
             font-family: 'Segoe UI', sans-serif; 
             display: flex; 
@@ -26,7 +25,11 @@
         .card { background: rgba(11, 18, 32, 0.9); border:2px solid #1e293b; border-radius:12px; backdrop-filter: blur(5px); }
         
         .label-bold { color: #fbbf24 !important; font-weight: 900; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; }
-        input, textarea { background:#0f172a !important; color:#ffffff !important; border:2px solid #334155 !important; font-size: 0.9rem; }
+        input, textarea, select { background:#0f172a !important; color:#ffffff !important; border:2px solid #334155 !important; font-size: 0.9rem; }
+        input::placeholder, textarea::placeholder {
+            color: #94a3b8 !important;
+            opacity: 1;
+        }
         .table { color:#ffffff; border-color: #334155; font-size: 0.85rem; }
         .title { color:#38bdf8; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; }
         
@@ -51,9 +54,155 @@
         .bit-val { color: #fbbf24; font-weight: bold; }
         .bit-sum { color: #38bdf8; font-weight: bold; }
 
+        .ejercicio-card { background: rgba(11, 18, 32, 0.95); border: 2px solid #38bdf8; border-radius: 12px; }
+        .respuesta-input { 
+            background: #0f172a !important; 
+            border: 2px solid #334155 !important; 
+            color: #ffffff !important; 
+            font-size: 0.9rem;
+        }
+        .respuesta-input::placeholder {
+            color: #94a3b8 !important;
+            font-size: 0.8rem;
+        }
+        .correcto { border: 2px solid #22c55e !important; background: rgba(34, 197, 94, 0.2) !important; }
+        .incorrecto { border: 2px solid #ef4444 !important; background: rgba(239, 68, 68, 0.2) !important; }
+
         footer { background: rgba(11, 18, 32, 0.9); border-top: 1px solid #1e293b; padding: 15px; text-align: center; margin-top: 30px; }
         .footer-text { color: #94a3b8; font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; }
         .footer-name { color: #38bdf8; font-weight: bold; text-shadow: 0 0 5px rgba(56, 189, 248, 0.4); }
+        
+        .btn-pdf { 
+            background: #dc2626; 
+            color: white; 
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-pdf:hover { background: #b91c1c; }
+        
+        .btn-primary-custom {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-primary-custom:hover { background: #2563eb; }
+        
+        .btn-agregar-custom {
+            background: #22c55e;
+            color: white;
+            border: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            padding: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-agregar-custom:hover { background: #16a34a; }
+        
+        .nav-tabs {
+            border-bottom: 2px solid #1e293b;
+        }
+        .nav-tabs .nav-link {
+            color: #94a3b8;
+            font-weight: bold;
+            border: none;
+            padding: 12px 24px;
+            transition: all 0.3s;
+        }
+        .nav-tabs .nav-link:hover {
+            color: #38bdf8;
+            border: none;
+        }
+        .nav-tabs .nav-link.active {
+            color: #38bdf8;
+            background: rgba(11, 18, 32, 0.95);
+            border-bottom: 3px solid #38bdf8;
+            font-weight: bold;
+        }
+        .tab-pane {
+            padding-top: 20px;
+        }
+        
+        .campo-ejercicio {
+            font-size: 0.85rem;
+        }
+        
+        .scrollable {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .botones-centrados {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .solucion-card {
+            background: rgba(15, 23, 42, 0.95);
+            border-left: 3px solid #38bdf8;
+        }
+        
+        .solucion-texto {
+            color: #e2e8f0 !important;
+        }
+        
+        .enunciado-blanco {
+            color: #ffffff !important;
+        }
+        
+        .subred-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .btn-eliminar {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-radius: 4px;
+            width: 32px;
+        }
+        
+        .btn-eliminar:hover {
+            background: #b91c1c;
+        }
+        
+        .btn-group-botones {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-group-botones button {
+            flex: 1;
+        }
+        
+        /* Quitar flechas del input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 <body class="p-3">
@@ -62,53 +211,110 @@
     <div class="row">
         <div class="col-md-3 mb-3">
             <div class="card p-3 mb-3">
-                <h5 class="title mb-3">🚀 CALCULADORA VLSM</h5>
-                <label class="label-bold">IP BASE</label>
-                <input id="ip" class="form-control mb-3" value="172.20.0.0">
-                <label class="label-bold">SUBREDES (NOMBRE:HOSTS)</label>
-                <textarea id="input" class="form-control mb-3" rows="5">MÉRIDA:3500
-SAN CRISTOBAL:2000
-TRUJILLO:900
-VLAN:250
-WAN:2</textarea>
-                <button class="btn btn-primary w-100 fw-bold py-2" onclick="calcular()">GENERAR CÁLCULO</button>
-            </div>
-
-            <div class="card p-3 mb-3">
-                <h6 class="text-info fw-bold mb-2 small border-bottom pb-1">SUMA DE BITS (OCTETO)</h6>
-                <div id="bits_referencia">
-                    <div class="bit-row bit-header"><span>BIT Pos.</span> <span>VALOR</span> <span>SUMA</span></div>
+                <h5 class="title mb-3">🚀 HERRAMIENTAS</h5>
+                <div class="mb-3">
+                    <label class="label-bold">SUMA DE BITS (OCTETO)</label>
+                    <div id="bits_referencia"></div>
                 </div>
-            </div>
-
-            <div class="card p-3">
-                <h6 class="text-info fw-bold mb-2 small border-bottom pb-1">POTENCIA. 2<sup>n</sup></h6>
-                <div id="potencias_ref"></div>
+                <div>
+                    <label class="label-bold">POTENCIA 2<sup>n</sup></label>
+                    <div id="potencias_ref" style="max-height: 300px; overflow-y: auto;"></div>
+                </div>
             </div>
         </div>
 
         <div class="col-md-9">
-            <div id="resultado_container" style="display:none;">
-                <div class="card p-3 mb-3">
-                    <h5 class="title mb-2">📋 CUADRO VLSM</h5>
-                    <div class="table-responsive">
-                        <table class="table table-hover table-sm m-0 text-center">
-                            <thead class="text-info fw-bold">
-                                <tr>
-                                    <th>RED</th>
-                                    <th>HOSTS</th>
-                                    <th>NETWORK</th>
-                                    <th>MÁSCARA</th>
-                                    <th>BROADCAST</th>
-                                    <th>CIDR</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabla_body" class="fw-bold"></tbody>
-                        </table>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="calculadora-tab" data-bs-toggle="tab" data-bs-target="#calculadora" type="button" role="tab">📊 CALCULADORA VLSM</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="estudio-tab" data-bs-toggle="tab" data-bs-target="#estudio" type="button" role="tab">📚 MODO ESTUDIO</button>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="myTabContent">
+                <!-- Pestaña Calculadora -->
+                <div class="tab-pane fade show active" id="calculadora" role="tabpanel">
+                    <div class="card p-3 mb-3">
+                        <h5 class="title mb-3">🔧 CONFIGURACIÓN</h5>
+                        <label class="label-bold">IP BASE</label>
+                        <input id="ip" class="form-control mb-3" value="172.20.0.0">
+                        <label class="label-bold">SUBREDES</label>
+                        <div id="subredesContainer"></div>
+                        <button class="btn btn-agregar-custom w-100 mb-3" onclick="agregarSubred()">➕ AGREGAR SUBRED</button>
+                        <div class="btn-group-botones">
+                            <button class="btn btn-primary-custom" onclick="calcular()">⚡ GENERAR CÁLCULO</button>
+                            <button class="btn btn-pdf" onclick="exportarPDF()">📄 EXPORTAR A PDF</button>
+                        </div>
+                    </div>
+                    
+                    <div id="resultado_container" style="display:none;">
+                        <div class="card p-3 mb-3" id="contenidoPDF">
+                            <h5 class="title mb-2">📋 CUADRO VLSM</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover table-sm m-0 text-center">
+                                    <thead class="text-info fw-bold">
+                                        <tr>
+                                            <th>RED</th>
+                                            <th>HOSTS</th>
+                                            <th>NETWORK</th>
+                                            <th>MÁSCARA</th>
+                                            <th>BROADCAST</th>
+                                            <th>CIDR</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabla_body" class="fw-bold"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <h5 class="title mb-3 text-center">🧠 MEMORIA DE CÁLCULO</h5>
+                        <div id="pasos" class="row gx-2 gy-2"></div>
                     </div>
                 </div>
-                <h5 class="title mb-3 text-center">🧠 MEMORIA DE CÁLCULO</h5>
-                <div id="pasos" class="row gx-2 gy-2"></div>
+                
+                <!-- Pestaña Modo Estudio -->
+                <div class="tab-pane fade" id="estudio" role="tabpanel">
+                    <div class="card p-3 mb-3 ejercicio-card">
+                        <h5 class="title mb-3">📚 GENERADOR DE EJERCICIOS</h5>
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="label-bold">CLASE DE RED</label>
+                                <select id="claseRed" class="form-control">
+                                    <option value="A">Clase A (1-126)</option>
+                                    <option value="B">Clase B (128-191)</option>
+                                    <option value="C">Clase C (192-223)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="label-bold">DIFICULTAD</label>
+                                <select id="dificultad" class="form-control">
+                                    <option value="facil">Fácil (2-4 subredes)</option>
+                                    <option value="medio">Medio (4-6 subredes)</option>
+                                    <option value="dificil">Difícil (6-8 subredes)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="label-bold">&nbsp;</label>
+                                <button class="btn btn-primary-custom w-100 fw-bold" onclick="generarEjercicio()">🎲 NUEVO EJERCICIO</button>
+                            </div>
+                        </div>
+                        
+                        <div id="ejercicioContainer" style="display: none;">
+                            <div class="alert alert-info mb-3">
+                                <strong>📌 INSTRUCCIONES:</strong> Realiza el subnetting VLSM para las siguientes subredes y completa todos los campos requeridos.
+                            </div>
+                            <div id="enunciadoEjercicio" class="mb-3 p-3" style="background: #0f172a; border-radius: 8px;"></div>
+                            <div id="preguntasEjercicio" class="scrollable"></div>
+                            <div class="botones-centrados">
+                                <button class="btn btn-success" onclick="validarEjercicio()">✅ VALIDAR RESPUESTAS</button>
+                                <button class="btn btn-warning" onclick="mostrarSolucion()">🔍 MOSTAR SOLUCIÓN</button>
+                                <button class="btn btn-secondary" onclick="generarEjercicio()">🔄 NUEVO EJERCICIO</button>
+                            </div>
+                            <div id="resultadoValidacion" class="mt-3"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -116,22 +322,30 @@ WAN:2</textarea>
 
 <footer>
     <div class="footer-text">
-        © 2026 Desarrollado por <span class="footer-name">Heldyn Diaz</span> | Subnetting 
+        © 2026 Desarrollado por <span class="footer-name">Heldyn Diaz</span> | Subnetting VLSM
     </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+let ejercicioActual = null;
+let contadorSubredes = 0;
+let subredesLista = [];
+
 window.onload = function() {
+    // Generar tabla de potencias
     let potHtml = "";
-    for(let i=0; i<=15; i++) {
+    for(let i = 0; i <= 15; i++) {
         potHtml += `<div class="potencia-item"><span>2<sup>${i}</sup></span> <span class="potencia-val">${Math.pow(2,i).toLocaleString()}</span></div>`;
     }
     document.getElementById('potencias_ref').innerHTML = potHtml;
 
+    // Generar tabla de bits
     let bitsHtml = "";
     let sumaAcumulada = 0;
     const valoresBits = [128, 64, 32, 16, 8, 4, 2, 1];
     
+    bitsHtml += '<div class="bit-row bit-header"><span>BIT Pos.</span> <span>VALOR</span> <span>SUMA</span></div>';
     valoresBits.forEach((val, index) => {
         sumaAcumulada += val;
         bitsHtml += `
@@ -141,8 +355,61 @@ window.onload = function() {
                 <span class="bit-sum">${sumaAcumulada}</span>
             </div>`;
     });
-    document.getElementById('bits_referencia').innerHTML += bitsHtml;
+    document.getElementById('bits_referencia').innerHTML = bitsHtml;
+    
+    // Agregar subredes iniciales
+    agregarSubred("MÉRIDA", 3500);
+    agregarSubred("SAN CRISTOBAL", 2000);
+    agregarSubred("TRUJILLO", 900);
+    agregarSubred("VLAN", 250);
+    agregarSubred("WAN", 2);
+    
+    generarEjercicio();
 };
+
+function agregarSubred(nombre = "", hosts = "") {
+    const container = document.getElementById('subredesContainer');
+    const id = contadorSubredes++;
+    
+    const div = document.createElement('div');
+    div.className = 'subred-item mb-2';
+    div.id = `subred_${id}`;
+    div.innerHTML = `
+        <div class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <input type="text" class="form-control form-control-sm" id="nombre_${id}" placeholder="Nombre de la red" value="${nombre}">
+            </div>
+            <div class="col-md-5">
+                <input type="number" class="form-control form-control-sm" id="hosts_${id}" placeholder="Número de hosts" value="${hosts}">
+            </div>
+            <div class="col-md-2 text-center">
+                <button class="btn btn-eliminar" onclick="eliminarSubred(${id})">✖</button>
+            </div>
+        </div>
+    `;
+    container.appendChild(div);
+    subredesLista.push(id);
+}
+
+function eliminarSubred(id) {
+    const elemento = document.getElementById(`subred_${id}`);
+    if(elemento) {
+        elemento.remove();
+        subredesLista = subredesLista.filter(i => i !== id);
+    }
+}
+
+function obtenerSubredes() {
+    let subredes = [];
+    subredesLista.forEach(id => {
+        const nombre = document.getElementById(`nombre_${id}`).value.trim();
+        const hosts = parseInt(document.getElementById(`hosts_${id}`).value);
+        if(nombre && hosts > 0) {
+            subredes.push({ name: nombre, hosts: hosts });
+        }
+    });
+    return subredes;
+}
 
 function maskToBinary(maskStr) {
     return maskStr.split('.').map(octet => 
@@ -164,36 +431,59 @@ function getMask(cidr) {
     return mask.join('.');
 }
 
+function getSalto(mascara, cidr) {
+    let maskInt = ipToInt(mascara);
+    if (cidr >= 24) {
+        return { valor: 256 - (maskInt & 255), octeto: "4TO" };
+    } else if (cidr >= 16) {
+        return { valor: 256 - ((maskInt >> 8) & 255), octeto: "3ER" };
+    } else {
+        return { valor: 256 - ((maskInt >> 16) & 255), octeto: "2DO" };
+    }
+}
+
 function calcular() {
     const ipIn = document.getElementById('ip').value;
-    if (!validarIP(ipIn)) return alert("IP Inválida");
+    if (!validarIP(ipIn)) {
+        alert("IP Inválida");
+        return;
+    }
 
     let base = ipToInt(ipIn);
-    const redes = document.getElementById('input').value.trim().split('\n').map(l => {
-        let parts = l.split(':');
-        return { name: parts[0].trim(), hosts: parseInt(parts[1]) || 0 };
-    }).sort((a, b) => b.hosts - a.hosts);
+    const redes = obtenerSubredes();
+    
+    if(redes.length === 0) {
+        alert("Agregue al menos una subred");
+        return;
+    }
+    
+    const redesOrdenadas = [...redes].sort((a, b) => b.hosts - a.hosts);
 
     let htmlBody = "";
     let pasosHtml = "";
 
-    redes.forEach(r => {
+    redesOrdenadas.forEach(r => {
         let bitsHost = 0;
         while ((Math.pow(2, bitsHost) - 2) < r.hosts) bitsHost++;
         let size = Math.pow(2, bitsHost);
         let cidr = 32 - bitsHost;
         let mascara = getMask(cidr);
         let binMask = maskToBinary(mascara);
-        
-        let salto, oct;
-        let maskInt = ipToInt(mascara);
-        if (cidr >= 24) { salto = 256 - (maskInt & 255); oct = "4TO"; }
-        else if (cidr >= 16) { salto = 256 - ((maskInt >> 8) & 255); oct = "3ER"; }
-        else { salto = 256 - ((maskInt >> 16) & 255); oct = "2DO"; }
+        let saltoInfo = getSalto(mascara, cidr);
 
-        let net = base, first = net+1, last = net+size-2, bc = net+size-1;
+        let net = base;
+        let first = net + 1;
+        let last = net + size - 2;
+        let bc = net + size - 1;
 
-        htmlBody += `<tr><td class="text-info">${r.name}</td><td>${r.hosts}</td><td>${intToIp(net)}</td><td class="text-warning">${mascara}</td><td>${intToIp(bc)}</td><td>/${cidr}</td></tr>`;
+        htmlBody += `<tr>
+            <td class="text-info">${r.name}</td>
+            <td>${r.hosts}</td>
+            <td>${intToIp(net)}</td>
+            <td class="text-warning">${mascara}</td>
+            <td>${intToIp(bc)}</td>
+            <td>/${cidr}</td>
+        </tr>`;
 
         pasosHtml += `
             <div class="col-md-6 mb-2">
@@ -205,8 +495,8 @@ function calcular() {
                     <div class="mb-2 lh-sm">
                         <div><span class="step-label">POTENCIA:</span> <span class="text-white-bold">2<sup>${bitsHost}</sup> = ${size.toLocaleString()}</span></div>
                         <div><span class="step-label">MÁSCARA:</span> <span class="text-white-bold">/${cidr} (${mascara})</span></div>
-                        <div class="text-bin my-1">${binMask}</div>
-                        <div><span class="step-label">SALTO:</span> <span class="text-jump-val">${salto}</span> <span class="text-jump-desc">(${oct} OCTETO)</span></div>
+                        <div class="text-bin my-1"><span class="step-label">BINARIO:</span> ${binMask}</div>
+                        <div><span class="step-label">SALTO:</span> <span class="text-jump-val">${saltoInfo.valor}</span> <span class="text-jump-desc">(${saltoInfo.octeto} OCTETO)</span></div>
                     </div>
                     <div class="ip-box">
                         <div class="mb-1"><span class="step-label">RED:</span> <code class="ip-technical">${intToIp(net)}</code></div>
@@ -223,6 +513,285 @@ function calcular() {
     document.getElementById('tabla_body').innerHTML = htmlBody;
     document.getElementById('pasos').innerHTML = pasosHtml;
     document.getElementById('resultado_container').style.display = "block";
+    document.getElementById('resultado_container').scrollIntoView({ behavior: 'smooth' });
+}
+
+function exportarPDF() {
+    const element = document.getElementById('contenidoPDF');
+    const opt = {
+        margin: 1,
+        filename: 'subnetting_resultados.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+    };
+    html2pdf().set(opt).from(element).save();
+}
+
+
+function generarEjercicio() {
+    const clase = document.getElementById('claseRed').value;
+    const dificultad = document.getElementById('dificultad').value;
+    
+    let redesRequeridas = dificultad === 'facil' ? Math.floor(Math.random() * 3) + 2 : 
+                          dificultad === 'medio' ? Math.floor(Math.random() * 3) + 4 : 
+                          Math.floor(Math.random() * 3) + 6;
+    
+    let ipBase = obtenerIPBase(clase);
+    let nombresRedes = obtenerNombresRedes(redesRequeridas);
+    let hostsRequeridos = [];
+    
+    for(let i = 0; i < redesRequeridas; i++) {
+        let maxHosts = clase === 'A' ? 8000 : clase === 'B' ? 4000 : 300;
+        let minHosts = dificultad === 'facil' ? 10 : dificultad === 'medio' ? 50 : 100;
+        let hosts = Math.floor(Math.random() * (maxHosts - minHosts + 1)) + minHosts;
+        hostsRequeridos.push(hosts);
+    }
+    
+    let subredes = nombresRedes.map((nombre, idx) => ({
+        name: nombre,
+        hosts: hostsRequeridos[idx]
+    })).sort((a, b) => b.hosts - a.hosts);
+    
+    ejercicioActual = {
+        ipBase: ipBase,
+        subredes: subredes,
+        clase: clase,
+        soluciones: calcularSolucionesEjercicio(ipBase, subredes)
+    };
+    
+    mostrarEnunciado(ejercicioActual);
+    mostrarPreguntas(ejercicioActual);
+    document.getElementById('ejercicioContainer').style.display = 'block';
+    document.getElementById('resultadoValidacion').innerHTML = '';
+}
+
+function obtenerIPBase(clase) {
+    if(clase === 'A') {
+        let primerOcteto = Math.floor(Math.random() * (126 - 1 + 1)) + 1;
+        return `${primerOcteto}.0.0.0`;
+    } else if(clase === 'B') {
+        let primerOcteto = Math.floor(Math.random() * (191 - 128 + 1)) + 128;
+        let segundoOcteto = Math.floor(Math.random() * 256);
+        return `${primerOcteto}.${segundoOcteto}.0.0`;
+    } else {
+        let primerOcteto = Math.floor(Math.random() * (223 - 192 + 1)) + 192;
+        let segundoOcteto = Math.floor(Math.random() * 256);
+        let tercerOcteto = Math.floor(Math.random() * 256);
+        return `${primerOcteto}.${segundoOcteto}.${tercerOcteto}.0`;
+    }
+}
+
+function obtenerNombresRedes(cantidad) {
+    const nombres = ["SOPORTE", "VENTAS", "FINANZAS", "RRHH", "TI", "GERENCIA", "INVESTIGACION", "DESARROLLO", "CALIDAD", "LOGISTICA", "PRODUCCION", "MARKETING"];
+    let seleccionados = [];
+    let copia = [...nombres];
+    for(let i = 0; i < cantidad && copia.length > 0; i++) {
+        let idx = Math.floor(Math.random() * copia.length);
+        seleccionados.push(copia[idx]);
+        copia.splice(idx, 1);
+    }
+    return seleccionados;
+}
+
+function calcularSolucionesEjercicio(ipBase, subredes) {
+    let base = ipToInt(ipBase);
+    let soluciones = [];
+    
+    subredes.forEach(subred => {
+        let bitsHost = 0;
+        while ((Math.pow(2, bitsHost) - 2) < subred.hosts) bitsHost++;
+        let size = Math.pow(2, bitsHost);
+        let cidr = 32 - bitsHost;
+        let mascara = getMask(cidr);
+        let saltoInfo = getSalto(mascara, cidr);
+        
+        let net = base;
+        let broadcast = net + size - 1;
+        let primeraIP = net + 1;
+        let ultimaIP = broadcast - 1;
+        
+        soluciones.push({
+            name: subred.name,
+            hosts: subred.hosts,
+            network: intToIp(net),
+            mascara: mascara,
+            cidr: cidr,
+            broadcast: intToIp(broadcast),
+            primeraIP: intToIp(primeraIP),
+            ultimaIP: intToIp(ultimaIP),
+            salto: saltoInfo.valor,
+            octetoSalto: saltoInfo.octeto,
+            size: size,
+            bitsHost: bitsHost
+        });
+        
+        base += size;
+    });
+    
+    return soluciones;
+}
+
+function mostrarEnunciado(ejercicio) {
+    let html = `
+        <h6 class="text-info fw-bold mb-3">📡 ENUNCIADO:</h6>
+        <p class="mb-2 enunciado-blanco">Se tiene la red base <strong class="text-warning" style="font-size: 1.1rem;">${ejercicio.ipBase}</strong> <span class="badge bg-info ms-2">Clase ${ejercicio.clase}</span></p>
+        <p class="mb-2 enunciado-blanco">Se requiere realizar subnetting VLSM para las siguientes subredes:</p>
+        <div class="row mb-3">
+    `;
+    
+    ejercicio.subredes.forEach((subred, idx) => {
+        html += `
+            <div class="col-md-6 mb-2">
+                <div class="d-flex justify-content-between align-items-center p-2" style="background: rgba(56, 189, 248, 0.1); border-radius: 6px;">
+                    <span class="fw-bold text-info">${subred.name}</span>
+                    <span class="badge bg-primary">${subred.hosts.toLocaleString()} hosts</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += `</div><p class="mt-2 text-light">Complete la siguiente información para cada subred:</p>`;
+    
+    document.getElementById('enunciadoEjercicio').innerHTML = html;
+}
+
+function mostrarPreguntas(ejercicio) {
+    let html = '<div class="row">';
+    
+    ejercicio.subredes.forEach((subred, idx) => {
+        html += `
+            <div class="col-md-6 mb-4">
+                <div class="card p-3" style="background: #0f172a; border: 1px solid #334155;">
+                    <h6 class="text-warning fw-bold mb-3">${subred.name} <span class="badge bg-primary ms-2">${subred.hosts} hosts</span></h6>
+                    <div class="mb-2">
+                        <label class="small text-secondary">🌐 Network ID:</label>
+                        <input type="text" id="resp_net_${idx}" class="form-control form-control-sm respuesta-input campo-ejercicio" placeholder="Ej: 192.168.1.0">
+                    </div>
+                    <div class="mb-2">
+                        <label class="small text-secondary">🔒 Máscara de Red:</label>
+                        <input type="text" id="resp_mask_${idx}" class="form-control form-control-sm respuesta-input campo-ejercicio" placeholder="Ej: 255.255.255.0">
+                    </div>
+                    <div class="mb-2">
+                        <label class="small text-secondary">📌 CIDR:</label>
+                        <input type="text" id="resp_cidr_${idx}" class="form-control form-control-sm respuesta-input campo-ejercicio" placeholder="Ej: 24">
+                    </div>
+                    <div class="mb-2">
+                        <label class="small text-secondary">⚡ Salto:</label>
+                        <input type="number" id="resp_salto_${idx}" class="form-control form-control-sm respuesta-input campo-ejercicio" placeholder="Ej: 64">
+                    </div>
+                    <div class="mb-2">
+                        <label class="small text-secondary">📢 Broadcast:</label>
+                        <input type="text" id="resp_bcast_${idx}" class="form-control form-control-sm respuesta-input campo-ejercicio" placeholder="Ej: 192.168.1.255">
+                    </div>
+                    <div class="mb-2">
+                        <label class="small text-secondary">▶️ Primera IP Útil:</label>
+                        <input type="text" id="resp_primera_${idx}" class="form-control form-control-sm respuesta-input campo-ejercicio" placeholder="Ej: 192.168.1.1">
+                    </div>
+                    <div class="mb-2">
+                        <label class="small text-secondary">◀️ Última IP Útil:</label>
+                        <input type="text" id="resp_ultima_${idx}" class="form-control form-control-sm respuesta-input campo-ejercicio" placeholder="Ej: 192.168.1.254">
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    document.getElementById('preguntasEjercicio').innerHTML = html;
+}
+
+function validarEjercicio() {
+    if(!ejercicioActual) return;
+    
+    let correctas = 0;
+    let total = ejercicioActual.subredes.length * 7;
+    
+    ejercicioActual.subredes.forEach((subred, idx) => {
+        let sol = ejercicioActual.soluciones[idx];
+        let respNet = document.getElementById(`resp_net_${idx}`).value.trim();
+        let respMask = document.getElementById(`resp_mask_${idx}`).value.trim();
+        let respCidr = document.getElementById(`resp_cidr_${idx}`).value.trim();
+        let respSalto = document.getElementById(`resp_salto_${idx}`).value.trim();
+        let respBcast = document.getElementById(`resp_bcast_${idx}`).value.trim();
+        let respPrimera = document.getElementById(`resp_primera_${idx}`).value.trim();
+        let respUltima = document.getElementById(`resp_ultima_${idx}`).value.trim();
+        
+        let netOk = respNet === sol.network;
+        let maskOk = respMask === sol.mascara;
+        let cidrOk = respCidr === sol.cidr.toString();
+        let saltoOk = parseInt(respSalto) === sol.salto;
+        let bcastOk = respBcast === sol.broadcast;
+        let primeraOk = respPrimera === sol.primeraIP;
+        let ultimaOk = respUltima === sol.ultimaIP;
+        
+        if(netOk) correctas++;
+        if(maskOk) correctas++;
+        if(cidrOk) correctas++;
+        if(saltoOk) correctas++;
+        if(bcastOk) correctas++;
+        if(primeraOk) correctas++;
+        if(ultimaOk) correctas++;
+        
+        const campos = ['net', 'mask', 'cidr', 'salto', 'bcast', 'primera', 'ultima'];
+        const estados = [netOk, maskOk, cidrOk, saltoOk, bcastOk, primeraOk, ultimaOk];
+        
+        campos.forEach((campo, i) => {
+            let input = document.getElementById(`resp_${campo}_${idx}`);
+            if(input) {
+                input.classList.remove('correcto', 'incorrecto');
+                input.classList.add(estados[i] ? 'correcto' : 'incorrecto');
+            }
+        });
+    });
+    
+    let porcentaje = (correctas / total) * 100;
+    let mensaje = `
+        <div class="alert alert-${porcentaje === 100 ? 'success' : porcentaje >= 70 ? 'warning' : 'danger'}">
+            <strong>📊 RESULTADOS:</strong><br>
+            Aciertos: ${correctas} de ${total} (${porcentaje.toFixed(1)}%)<br>
+            ${porcentaje === 100 ? '🎉 ¡Excelente! Todos los cálculos son correctos.' : 
+              porcentaje >= 70 ? '👍 Buen trabajo, revisa los campos marcados en rojo.' : 
+              '📚 Necesitas practicar más. Revisa la solución para entender los errores.'}
+        </div>
+    `;
+    
+    document.getElementById('resultadoValidacion').innerHTML = mensaje;
+}
+
+function mostrarSolucion() {
+    if(!ejercicioActual) return;
+    
+    let html = '<div class="alert alert-info mt-3"><strong>🔍 SOLUCIÓN COMPLETA:</strong><br><br>';
+    
+    ejercicioActual.soluciones.forEach((sol, idx) => {
+        html += `
+            <div class="mb-3 p-3 solucion-card" style="border-left: 3px solid #38bdf8; background: rgba(15, 23, 42, 0.95);">
+                <strong class="text-warning" style="font-size: 1rem;">${sol.name}</strong> 
+                <span class="badge bg-primary ms-2">${sol.hosts} hosts</span><br>
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <span class="text-success">✓ Network:</span> <code class="solucion-texto">${sol.network}</code><br>
+                        <span class="text-success">✓ Máscara:</span> <code class="solucion-texto">${sol.mascara}</code><br>
+                        <span class="text-success">✓ CIDR:</span> <code class="solucion-texto">/${sol.cidr}</code>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="text-success">✓ Salto:</span> <code class="solucion-texto">${sol.salto} (${sol.octetoSalto} OCTETO)</code><br>
+                        <span class="text-success">✓ Broadcast:</span> <code class="solucion-texto">${sol.broadcast}</code><br>
+                        <span class="text-success">✓ Primera IP:</span> <code class="solucion-texto">${sol.primeraIP}</code><br>
+                        <span class="text-success">✓ Última IP:</span> <code class="solucion-texto">${sol.ultimaIP}</code>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <span class="text-info">📐 Tamaño bloque: ${sol.size} direcciones (2<sup>${sol.bitsHost}</sup>)</span>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '<button class="btn btn-sm btn-secondary mt-2" onclick="this.parentElement.remove()">Cerrar solución</button></div>';
+    
+    document.getElementById('resultadoValidacion').innerHTML = html;
 }
 </script>
 </body>
