@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Subnetting Calculadora + Modo Estudio</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -90,7 +90,7 @@
         .btn-guia { background: #fbbf24; color: #000; border: none; font-weight: 800; font-size: 0.9rem; padding: 10px 20px; text-transform: uppercase; letter-spacing: 1px; margin-left: 15px; }
         .btn-guia:hover { background: #f59e0b; color: #000; }
         
-        .nav-tabs { border-bottom: 2px solid #1e293b; display: flex; align-items: center; }
+        .nav-tabs { border-bottom: 2px solid #1e293b; display: flex; align-items: center; flex-wrap: wrap; }
         .nav-tabs .nav-link { color: #94a3b8; font-weight: bold; border: none; padding: 12px 24px; transition: all 0.3s; }
         .nav-tabs .nav-link:hover { color: #38bdf8; border: none; }
         .nav-tabs .nav-link.active { color: #38bdf8; background: rgba(11, 18, 32, 0.95); border-bottom: 3px solid #38bdf8; font-weight: bold; }
@@ -98,14 +98,14 @@
         .tab-pane { padding-top: 20px; }
         .campo-ejercicio { font-size: 0.85rem; }
         .scrollable { max-height: 600px; overflow-y: auto; }
-        .botones-centrados { display: flex; justify-content: center; gap: 10px; margin-top: 20px; }
+        .botones-centrados { display: flex; justify-content: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
         .solucion-card { background: rgba(15, 23, 42, 0.95); border-left: 3px solid #38bdf8; }
         .solucion-texto { color: #e2e8f0 !important; }
         .enunciado-blanco { color: #ffffff !important; }
         .subred-item { background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 8px; padding: 8px; margin-bottom: 10px; }
         .btn-eliminar { background: #dc2626; color: white; border: none; padding: 4px 8px; font-size: 0.7rem; font-weight: bold; border-radius: 4px; width: 32px; }
         .btn-eliminar:hover { background: #b91c1c; }
-        .btn-group-botones { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-group-botones { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
         .btn-group-botones button { flex: 1; }
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
@@ -119,13 +119,25 @@
         .guia-paso-modal strong { color: #fbbf24; }
         .guia-formula { background: #000000; padding: 2px 8px; border-radius: 8px; font-family: monospace; color: #22c55e; }
         .guia-ejemplo { color: #38bdf8; font-size: 0.85rem; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .col-md-3, .col-md-9 { padding: 0 8px; }
+            .card { margin-bottom: 15px; }
+            .nav-tabs .nav-link { padding: 8px 12px; font-size: 0.8rem; }
+            .title { font-size: 0.9rem; }
+            .btn-guia { padding: 8px 12px; font-size: 0.7rem; margin-left: 5px; }
+            .table { font-size: 0.7rem; }
+            .ip-box code { font-size: 0.7rem; }
+            .step-label { width: 70px; font-size: 0.7rem; }
+        }
     </style>
 </head>
 <body class="p-3">
 
 <div class="content container-fluid">
     <div class="row">
-        <div class="col-md-3 mb-3">
+        <div class="col-12 col-md-3 mb-3">
             <div class="card p-3 mb-3">
                 <h5 class="title mb-3">🚀 HERRAMIENTAS</h5>
                 <div class="mb-3">
@@ -139,7 +151,7 @@
             </div>
         </div>
 
-        <div class="col-md-9">
+        <div class="col-12 col-md-9">
             <ul class="nav nav-tabs" id="myTab" role="tablist">
                 <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="calculadora-tab" data-bs-toggle="tab" data-bs-target="#calculadora" type="button" role="tab">📊 CALCULADORA VLSM</button>
@@ -197,7 +209,7 @@
                     <div class="card p-3 mb-3 ejercicio-card">
                         <h5 class="title mb-3">📚 GENERADOR DE EJERCICIOS</h5>
                         <div class="row mb-3">
-                            <div class="col-md-4">
+                            <div class="col-12 col-md-4 mb-2">
                                 <label class="label-bold">CLASE DE RED</label>
                                 <select id="claseRed" class="form-control">
                                     <option value="A">Clase A (1-126)</option>
@@ -205,7 +217,7 @@
                                     <option value="C">Clase C (192-223)</option>
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-12 col-md-4 mb-2">
                                 <label class="label-bold">DIFICULTAD</label>
                                 <select id="dificultad" class="form-control">
                                     <option value="facil">Fácil (2-4 subredes)</option>
@@ -213,7 +225,7 @@
                                     <option value="dificil">Difícil (6-8 subredes)</option>
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-12 col-md-4 mb-2">
                                 <label class="label-bold">&nbsp;</label>
                                 <button class="btn btn-primary-custom w-100 fw-bold" onclick="generarEjercicio()">🎲 NUEVO EJERCICIO</button>
                             </div>
@@ -221,7 +233,7 @@
                         
                         <div id="ejercicioContainer" style="display: none;">
                             <div class="alert alert-info mb-3">
-                                <strong>📌 INSTRUCCIONES:</strong> Realiza el subnetting VLSM para las siguientes subredes y completa todos los campos requeridos. Los campos se validan al salir de cada uno (pestaña o clic fuera).
+                                <strong>📌 INSTRUCCIONES:</strong> Realiza el subnetting VLSM para las siguientes subredes y completa todos los campos requeridos. Los campos se validan al salir de cada uno.
                             </div>
                             <div id="enunciadoEjercicio" class="mb-3 p-3" style="background: #0f172a; border-radius: 8px;"></div>
                             <div id="preguntasEjercicio" class="scrollable"></div>
@@ -245,7 +257,7 @@
     </div>
 </footer>
 
-<!-- Modal Guía COMPLETA Y MEJOR EXPLICADA -->
+<!-- Modal Guía COMPLETA -->
 <div class="modal fade" id="guiaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -254,7 +266,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-                
                 <div class="guia-paso-modal">
                     <strong>🔹 PASO 1: Calcular los bits necesarios para hosts (n)</strong><br>
                     Fórmula: <span class="guia-formula">2ⁿ - 2 ≥ Hosts requeridos</span><br>
@@ -393,13 +404,13 @@ function agregarSubred(nombre = "", hosts = "") {
     div.id = `subred_${id}`;
     div.innerHTML = `
         <div class="row g-2 align-items-center">
-            <div class="col-md-5">
+            <div class="col-7 col-md-5">
                 <input type="text" class="form-control form-control-sm" id="nombre_${id}" placeholder="Nombre de la red" value="${nombre}">
             </div>
-            <div class="col-md-5">
+            <div class="col-3 col-md-5">
                 <input type="number" class="form-control form-control-sm" id="hosts_${id}" placeholder="Número de hosts" value="${hosts}">
             </div>
-            <div class="col-md-2 text-center">
+            <div class="col-2 col-md-2 text-center">
                 <button class="btn btn-eliminar" onclick="eliminarSubred(${id})">✖</button>
             </div>
         </div>
@@ -503,7 +514,7 @@ function calcular() {
         </tr>`;
 
         pasosHtml += `
-            <div class="col-md-6 mb-2">
+            <div class="col-12 col-md-6 mb-2">
                 <div class="card p-3 card-step h-100">
                     <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-1" style="border-color: #1e293b !important;">
                         <span class="h6 text-info m-0 fw-bold">${r.name}</span>
@@ -659,7 +670,7 @@ function mostrarEnunciado(ejercicio) {
     
     ejercicio.subredes.forEach((subred, idx) => {
         html += `
-            <div class="col-md-6 mb-2">
+            <div class="col-12 col-md-6 mb-2">
                 <div class="d-flex justify-content-between align-items-center p-2" style="background: rgba(56, 189, 248, 0.1); border-radius: 6px;">
                     <span class="fw-bold text-info">${subred.name}</span>
                     <span class="badge bg-primary">${subred.hosts.toLocaleString()} hosts</span>
@@ -678,7 +689,7 @@ function mostrarPreguntas(ejercicio) {
     
     ejercicio.subredes.forEach((subred, idx) => {
         html += `
-            <div class="col-md-6 mb-4">
+            <div class="col-12 col-md-6 mb-4">
                 <div class="card p-3" style="background: #0f172a; border: 1px solid #334155;">
                     <h6 class="text-warning fw-bold mb-3">${subred.name} <span class="badge bg-primary ms-2">${subred.hosts} hosts</span></h6>
                     <div class="mb-2">
@@ -725,7 +736,6 @@ function mostrarPreguntas(ejercicio) {
     document.getElementById('preguntasEjercicio').innerHTML = html;
 }
 
-// Validación SOLO al salir del campo (onblur) - no mientras escribe
 function validarCampoAuto(idx, campo) {
     if(!ejercicioActual) return;
     let sol = ejercicioActual.soluciones[idx];
@@ -848,12 +858,12 @@ function mostrarSolucion() {
                 <strong class="text-warning" style="font-size: 1rem;">${sol.name}</strong> 
                 <span class="badge bg-primary ms-2">${sol.hosts} hosts</span><br>
                 <div class="row mt-2">
-                    <div class="col-md-6">
+                    <div class="col-12 col-md-6">
                         <span class="text-success">✓ Network:</span> <code class="solucion-texto">${sol.network}</code><br>
                         <span class="text-success">✓ Máscara:</span> <code class="solucion-texto">${sol.mascara}</code><br>
                         <span class="text-success">✓ CIDR:</span> <code class="solucion-texto">/${sol.cidr}</code>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-12 col-md-6">
                         <span class="text-success">✓ Salto:</span> <code class="solucion-texto">${sol.salto} (${sol.octetoSalto} OCTETO)</code><br>
                         <span class="text-success">✓ Broadcast:</span> <code class="solucion-texto">${sol.broadcast}</code><br>
                         <span class="text-success">✓ Primera IP:</span> <code class="solucion-texto">${sol.primeraIP}</code><br>
