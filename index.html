@@ -21,7 +21,7 @@
             min-height: 100vh; 
         }
         .content { flex: 1; }
-        .card { background: rgba(51, 62, 82, 0.9); border:2px solid #1e293b; border-radius:12px; backdrop-filter: blur(5px); }
+        .card { background: rgba(11, 18, 32, 0.9); border:2px solid #1e293b; border-radius:12px; backdrop-filter: blur(5px); }
         
         .label-bold { color: #fbbf24 !important; font-weight: 900; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; }
         input, textarea, select { background:#0f172a !important; color:#ffffff !important; border:2px solid #334155 !important; font-size: 0.9rem; }
@@ -29,7 +29,7 @@
             color: #94a3b8 !important;
             opacity: 1;
         }
-        .table { color:#ffffff; border-color: #334155; font-size: 0.85rem; }
+        .table { color:#ffffff; border-color: #334155; font-size: 0.75rem; }
         .title { color:#38bdf8; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; }
         
         .card-step { background: #0f172a; border-left: 5px solid #0ea5e9 !important; font-size: 0.82rem; }
@@ -121,14 +121,19 @@
         .guia-ejemplo { color: #38bdf8; font-size: 0.85rem; }
 
         /* Responsive */
+        @media (max-width: 992px) {
+            .table { font-size: 0.65rem; }
+            .table th, .table td { padding: 6px 4px; }
+        }
         @media (max-width: 768px) {
             .col-md-3, .col-md-9 { padding: 0 8px; }
             .card { margin-bottom: 15px; }
             .nav-tabs .nav-link { padding: 8px 12px; font-size: 0.8rem; }
             .title { font-size: 0.9rem; }
             .btn-guia { padding: 8px 12px; font-size: 0.7rem; margin-left: 5px; }
-            .table { font-size: 0.7rem; }
-            .ip-box code { font-size: 0.7rem; }
+            .table { font-size: 0.55rem; }
+            .table th, .table td { padding: 4px 2px; }
+            .ip-box code { font-size: 0.65rem; }
             .step-label { width: 70px; font-size: 0.7rem; }
         }
     </style>
@@ -182,17 +187,22 @@
                     
                     <div id="resultado_container" style="display:none;">
                         <div class="card p-3 mb-3" id="contenidoPDF">
-                            <h5 class="title mb-2">📋 CUADRO VLSM</h5>
+                            <h5 class="title mb-2">📋 CUADRO VLSM COMPLETO (BALANCE DE IP)</h5>
                             <div class="table-responsive">
                                 <table class="table table-hover table-sm m-0 text-center">
                                     <thead class="text-info fw-bold">
                                         <tr>
                                             <th>RED</th>
-                                            <th>HOSTS</th>
+                                            <th>HOSTS SOLICITADOS</th>
+                                            <th>HOSTS ASIGNADOS</th>
+                                            <th>TAMAÑO BLOQUE</th>
                                             <th>NETWORK</th>
                                             <th>MÁSCARA</th>
                                             <th>BROADCAST</th>
                                             <th>CIDR</th>
+                                            <th>SALTO</th>
+                                            <th>IP INICIAL</th>
+                                            <th>IP FINAL</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tabla_body" class="fw-bold"></tbody>
@@ -494,6 +504,7 @@ function calcular() {
         let bitsHost = 0;
         while ((Math.pow(2, bitsHost) - 2) < r.hosts) bitsHost++;
         let size = Math.pow(2, bitsHost);
+        let hostsAsignados = size - 2;
         let cidr = 32 - bitsHost;
         let mascara = getMask(cidr);
         let binMask = maskToBinary(mascara);
@@ -504,13 +515,19 @@ function calcular() {
         let last = net + size - 2;
         let bc = net + size - 1;
 
+        // NUEVA FILA CON TODOS LOS CAMPOS DEL BALANCE
         htmlBody += `<tr>
-            <td class="text-info">${r.name}</td>
-            <td>${r.hosts}</td>
-            <td>${intToIp(net)}</td>
+            <td class="text-info fw-bold">${r.name}</td>
+            <td class="text-warning">${r.hosts.toLocaleString()}</td>
+            <td class="text-success">${hostsAsignados.toLocaleString()}</td>
+            <td class="text-info">${size.toLocaleString()}</td>
+            <td class="text-info">${intToIp(net)}</td>
             <td class="text-warning">${mascara}</td>
-            <td>${intToIp(bc)}</td>
-            <td>/${cidr}</td>
+            <td class="text-info">${intToIp(bc)}</td>
+            <td class="text-success">/${cidr}</td>
+            <td class="text-jump-val">${saltoInfo.valor}</td>
+            <td class="text-info">${intToIp(first)}</td>
+            <td class="text-info">${intToIp(last)}</td>
         </tr>`;
 
         pasosHtml += `
@@ -522,6 +539,7 @@ function calcular() {
                     </div>
                     <div class="mb-2 lh-sm">
                         <div><span class="step-label">POTENCIA:</span> <span class="text-white-bold">2<sup>${bitsHost}</sup> = ${size.toLocaleString()}</span></div>
+                        <div><span class="step-label">HOSTS ASIG:</span> <span class="text-white-bold">${hostsAsignados.toLocaleString()} (2ⁿ - 2)</span></div>
                         <div><span class="step-label">MÁSCARA:</span> <span class="text-white-bold">/${cidr} (${mascara})</span></div>
                         <div class="text-bin my-1"><span class="step-label">BINARIO:</span> ${binMask}</div>
                         <div><span class="step-label">SALTO:</span> <span class="text-jump-val">${saltoInfo.valor}</span> <span class="text-jump-desc">(${saltoInfo.octeto} OCTETO)</span></div>
@@ -642,6 +660,8 @@ function calcularSolucionesEjercicio(ipBase, subredes) {
         soluciones.push({
             name: subred.name,
             hosts: subred.hosts,
+            hostsAsignados: size - 2,
+            tamañoBloque: size,
             network: intToIp(net),
             mascara: mascara,
             cidr: cidr,
@@ -688,6 +708,7 @@ function mostrarPreguntas(ejercicio) {
     let html = '<div class="row">';
     
     ejercicio.subredes.forEach((subred, idx) => {
+        let sol = ejercicioActual.soluciones[idx];
         html += `
             <div class="col-12 col-md-6 mb-4">
                 <div class="card p-3" style="background: #0f172a; border: 1px solid #334155;">
@@ -726,6 +747,9 @@ function mostrarPreguntas(ejercicio) {
                         <label class="small text-secondary">◀️ Última IP Útil:</label>
                         <input type="text" id="resp_ultima_${idx}" class="form-control form-control-sm respuesta-input campo-ejercicio" placeholder="Ej: 192.168.1.254" onblur="validarCampoAuto(${idx}, 'ultima')">
                         <div id="fb_ultima_${idx}" class="feedback-msg"></div>
+                    </div>
+                    <div class="mt-2 p-2" style="background:rgba(56,189,248,0.1); border-radius:6px;">
+                        <small class="text-info">📊 Datos del balance: Hosts Asignados = ${sol.hostsAsignados} | Tamaño Bloque = ${sol.tamañoBloque}</small>
                     </div>
                 </div>
             </div>
@@ -856,12 +880,13 @@ function mostrarSolucion() {
         html += `
             <div class="mb-3 p-3 solucion-card" style="border-left: 3px solid #38bdf8; background: rgba(15, 23, 42, 0.95);">
                 <strong class="text-warning" style="font-size: 1rem;">${sol.name}</strong> 
-                <span class="badge bg-primary ms-2">${sol.hosts} hosts</span><br>
+                <span class="badge bg-primary ms-2">${sol.hosts} hosts solicitados | Asignados: ${sol.hostsAsignados}</span><br>
                 <div class="row mt-2">
                     <div class="col-12 col-md-6">
                         <span class="text-success">✓ Network:</span> <code class="solucion-texto">${sol.network}</code><br>
                         <span class="text-success">✓ Máscara:</span> <code class="solucion-texto">${sol.mascara}</code><br>
-                        <span class="text-success">✓ CIDR:</span> <code class="solucion-texto">/${sol.cidr}</code>
+                        <span class="text-success">✓ CIDR:</span> <code class="solucion-texto">/${sol.cidr}</code><br>
+                        <span class="text-success">✓ Tamaño Bloque:</span> <code class="solucion-texto">${sol.tamañoBloque} IPs</code>
                     </div>
                     <div class="col-12 col-md-6">
                         <span class="text-success">✓ Salto:</span> <code class="solucion-texto">${sol.salto} (${sol.octetoSalto} OCTETO)</code><br>
@@ -871,7 +896,7 @@ function mostrarSolucion() {
                     </div>
                 </div>
                 <div class="mt-2">
-                    <span class="text-info">📐 Tamaño bloque: ${sol.size} direcciones (2<sup>${sol.bitsHost}</sup>)</span>
+                    <span class="text-info">📐 Capacidad real: ${sol.hostsAsignados} hosts (2<sup>${sol.bitsHost}</sup> - 2 = ${sol.size} - 2)</span>
                 </div>
             </div>
         `;
